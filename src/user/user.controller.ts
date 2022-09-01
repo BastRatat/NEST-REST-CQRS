@@ -1,7 +1,16 @@
-import { Controller, Body, Get, Post, HttpCode } from '@nestjs/common';
+import {
+  Controller,
+  Body,
+  Param,
+  Get,
+  Post,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 
 import { GetUsersQuery } from './queries/impl/get-users.query';
+import { GetUserQuery } from './queries/impl/get-user.query';
 import { SaveUserCommand } from './commands/impl/save-user.command';
 
 @Controller('user')
@@ -16,8 +25,13 @@ export class UserController {
     return await this.queryBus.execute(new GetUsersQuery());
   }
 
+  @Get(':id')
+  async getOne(@Param() params: { id: number }) {
+    return await this.queryBus.execute(new GetUserQuery(params.id));
+  }
+
   @Post()
-  @HttpCode(201)
+  @HttpCode(HttpStatus.CREATED)
   async createUser(@Body() newUser: SaveUserCommand) {
     return await this.commandBus.execute(newUser);
   }
