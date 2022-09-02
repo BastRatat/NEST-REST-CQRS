@@ -1,14 +1,31 @@
+import express from 'express';
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
+import { ExpressAdapter } from '@nestjs/platform-express';
+import { createServer } from 'aws-serverless-express';
+import { eventContext } from 'aws-serverless-express/middleware';
 
-async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-    }),
-  );
-  await app.listen(3000);
+import { AppModule } from './app.module';
+import { Server } from 'http';
+
+let cachedServer: Server;
+const binaryMimeTypes: string[] = [];
+
+export async function bootstrapServer(): Promise<Server> {
+  if (!cachedServer) {
+    const expressApp = express();
+    const nestApp = await NestFactory.create(
+      AppModule,
+      new ExpressAdapter(expressApp),
+    );
+    nestApp.useGlobalPipes(
+      new ValidationPipe({
+        whitelist: true,
+      }),
+    );
+    nestApp.use(eventContext());
+    await nestApp.init();
+    cachedServer = createServer(expressApp, undefined, binaryMimeTypes);
+  }
+  return cachedServer;
 }
-bootstrap();
