@@ -40,8 +40,19 @@ export class UserController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  async createUser(@Body() newUser: SaveUserCommand) {
-    return await this.commandBus.execute(newUser);
+  async createUser(
+    @Body()
+    newUser: {
+      id: number;
+      first_name: string;
+      last_name: string;
+      age: number;
+    },
+  ) {
+    const { id, first_name, last_name, age } = newUser;
+    return await this.commandBus.execute(
+      new SaveUserCommand(id, first_name, last_name, age),
+    );
   }
 
   @Delete(':id')

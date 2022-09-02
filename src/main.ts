@@ -21,6 +21,7 @@ export async function bootstrapServer(): Promise<Server> {
     nestApp.useGlobalPipes(
       new ValidationPipe({
         whitelist: true,
+        transform: true,
       }),
     );
     nestApp.use(eventContext());
