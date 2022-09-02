@@ -11,9 +11,11 @@ export class UpdateUserHandler implements ICommandHandler<UpdateUserCommand> {
   async execute(command: UpdateUserCommand) {
     const { id, age, first_name, last_name } = command;
     const user = await this.userRepo.findOneByOrFail({ id });
-    user.age = age;
-    user.first_name = first_name;
-    user.last_name = last_name;
-    await this.userRepo.save(user);
+    await this.userRepo.save({
+      ...user,
+      first_name,
+      last_name,
+      age,
+    });
   }
 }

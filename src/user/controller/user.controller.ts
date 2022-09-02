@@ -6,6 +6,7 @@ import {
   Post,
   Delete,
   Put,
+  Patch,
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
@@ -16,6 +17,7 @@ import { GetUserQuery } from '../queries/impl/get-user.query';
 import { SaveUserCommand } from '../commands/impl/save-user.command';
 import { RemoveUserCommand } from '../commands/impl/remove-user.command';
 import { UpdateUserCommand } from '../commands/impl/update-user.command';
+import { PartialUpdateUserCommand } from '../commands/impl/partial-update-user.command';
 
 @Controller('user')
 export class UserController {
@@ -25,11 +27,13 @@ export class UserController {
   ) {}
 
   @Get()
+  @HttpCode(HttpStatus.OK)
   async getAll() {
     return await this.queryBus.execute(new GetUsersQuery());
   }
 
   @Get(':id')
+  @HttpCode(HttpStatus.OK)
   async getOne(@Param() params: { id: number }) {
     return await this.queryBus.execute(new GetUserQuery(params.id));
   }
@@ -56,6 +60,27 @@ export class UserController {
     const { first_name, last_name, age } = updatedFields;
     return await this.commandBus.execute(
       new UpdateUserCommand(params.id, first_name, last_name, age),
+    );
+  }
+
+  @Patch(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async partialUpdateUser(
+    @Body()
+    updatedFields: {
+      first_name?: string | undefined;
+      last_name?: string | undefined;
+      age?: number | undefined;
+    },
+    @Param() params: { id: number },
+  ) {
+    return await this.commandBus.execute(
+      new PartialUpdateUserCommand(
+        params.id,
+        updatedFields.first_name,
+        updatedFields.last_name,
+        updatedFields.age,
+      ),
     );
   }
 }

@@ -9,6 +9,7 @@ import { GetUserHandler } from './queries/handlers/get-user.handler';
 import { SaveUserHandler } from './commands/handler/save-user.handler';
 import { RemoveUserHandler } from './commands/handler/remove-user.handler';
 import { UpdateUserHandler } from './commands/handler/update-user.handler';
+import { PartialUpdateUserHandler } from './commands/handler/partial-update-user.handler';
 
 @Module({
   imports: [TypeOrmModule.forFeature([User]), CqrsModule],
@@ -19,6 +20,7 @@ import { UpdateUserHandler } from './commands/handler/update-user.handler';
     SaveUserHandler,
     RemoveUserHandler,
     UpdateUserHandler,
+    PartialUpdateUserHandler,
   ],
 })
 export class UserModule {}
